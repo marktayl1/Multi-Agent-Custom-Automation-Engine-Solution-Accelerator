@@ -90,6 +90,9 @@
       case "GenericAgent":
         agentIcon = "manager";
         break;
+      case "BakerAgent":
+          agentIcon = "manager";
+          break;
       case "HumanAgent":
         let userNumber = sessionStorage.getItem("userNumber");
         if (userNumber == null) {
