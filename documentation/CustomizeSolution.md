@@ -1,4 +1,4 @@
-# Accelerating your own Multi-Agent -Custom Automation Engine MVP
+# Accelerating your own Multi-Agent - Custom Automation Engine MVP
 
 As the name suggests, this project is designed to accelerate development of Multi-Agent solutions in your environment.  The example solution presented shows how such a solution would be implemented and provides example agent definitions along with stubs for possible tools those agents could use to accomplish tasks.  You will want to implement real functions in your own environment, to be used by agents customized around your own use cases. Users can choose the LLM that is optimized for responsible use. The default LLM is GPT-4o which inherits the existing responsible AI mechanisms and filters from the LLM provider. We encourage developers to review [OpenAI’s Usage policies](https://openai.com/policies/usage-policies/) and [Azure OpenAI’s Code of Conduct](https://learn.microsoft.com/en-us/legal/cognitive-services/openai/code-of-conduct) when using GPT-4o. This document is designed to provide the in-depth technical information to allow you to add these customizations. Once the agents and tools have been developed, you will likely want to implement your own real world front end solution to replace the example in this accelerator.
 
@@ -8,7 +8,7 @@ This application is an AI-driven orchestration system that manages a group of AI
 
 - Receive input tasks from users.
 - Generate a detailed plan to accomplish the task using a Planner agent.
-- Execute the plan by delegating steps to specialized agents (e.g., HR, Legal, Marketing).
+- Execute the plan by delegating steps to specialized agents (e.g., HR, Procurement, Marketing).
 - Incorporate human feedback into the workflow.
 - Maintain state across sessions with persistent storage.
 
@@ -17,52 +17,43 @@ This code has not been tested as an end-to-end, reliable production application-
 Below, we'll dive into the details of each component, focusing on the endpoints, data types, and the flow of information through the system.
 # Table of Contents
 
-- [Accelerating your own Multi-Agent - Custom Automation Engine MVP](#accelerating-your-own-multi-agent---custom-automation-engine-mvp)
-  - [Technical Overview](#technical-overview)
 - [Table of Contents](#table-of-contents)
-  - [Endpoints](#endpoints)
-    - [/input\_task](#input_task)
-    - [/human\_feedback](#human_feedback)
-    - [/get\_latest\_plan\_by\_session/{session\_id}](#get_latest_plan_by_session-session_id)
-    - [/steps/{plan\_id}](#stepsplan_id)
-    - [/agent\_messages/{session\_id}](#agent_messagessession_id)
-    - [/messages](#messages)
-    - [/delete\_all\_messages](#delete_all_messages)
-    - [/api/agent-tools](#apiagent-tools)
-  - [Data Types and Models](#data-types-and-models)
-    - [Messages](#messages)
-      - [BaseDataModel](#basedatamodel)
-      - [AgentMessage](#agentmessage)
-      - [Session](#session)
-      - [Plan](#plan)
-      - [Step](#step)
-      - [PlanWithSteps](#planwithsteps)
-      - [InputTask](#inputtask)
-      - [ApprovalRequest](#approvalrequest)
-      - [HumanFeedback](#humanfeedback)
-      - [HumanClarification](#humanclarification)
-      - [ActionRequest](#actionrequest)
-      - [ActionResponse](#actionresponse)
-      - [PlanStateUpdate](#planstateupdate)
-      - [GroupChatMessage](#groupchatmessage)
-      - [RequestToSpeak](#requesttospeak)
-    - [Enums](#enums)
-      - [DataType](#datatype)
-      - [BAgentType](#bagenttype)
-      - [StepStatus](#stepstatus)
-      - [PlanStatus](#planstatus)
-      - [HumanFeedbackStatus](#humanfeedbackstatus)
-  - [Application Flow](#application-flow)
-    - [Initialization](#initialization)
-  - [Agents Overview](#agents-overview)
-    - [GroupChatManager](#groupchatmanager)
-    - [PlannerAgent](#planneragent)
-    - [HumanAgent](#humanagent)
-    - [Specialized Agents](#specialized-agents)
-  - [Persistent Storage with Cosmos DB](#persistent-storage-with-cosmos-db)
-  - [Utilities](#utilities)
-    - [`initialize_runtime_and_context` Function](#initialize_runtime_and_context-function)
-  - [Summary](#summary)
+  - [Accelerating your own Multi-Agent - Custom Automation Engine MVP](#accelerating-your-own-multi-agent---custom-automation-engine-mvp)
+    - [Technical Overview](#technical-overview)
+    - [API Reference](#api-reference)
+    - [Models and Datatypes](#models-and-datatypes)
+        - [BaseDataModel](#basedatamodel)
+        - [AgentMessage](#agentmessage)
+        - [Session](#session)
+        - [Plan](#plan)
+        - [Step](#step)
+        - [PlanWithSteps](#planwithsteps)
+        - [InputTask](#inputtask)
+        - [ApprovalRequest](#approvalrequest)
+        - [HumanFeedback](#humanfeedback)
+        - [HumanClarification](#humanclarification)
+        - [ActionRequest](#actionrequest)
+        - [ActionResponse](#actionresponse)
+        - [PlanStateUpdate](#planstateupdate)
+        - [GroupChatMessage](#groupchatmessage)
+        - [RequestToSpeak](#requesttospeak)
+      - [Data Types](#data-types)
+        - [DataType](#datatype)
+        - [BAgentType](#bagenttype)
+        - [StepStatus](#stepstatus)
+        - [PlanStatus](#planstatus)
+        - [HumanFeedbackStatus](#humanfeedbackstatus)
+    - [Application Flow](#application-flow)
+      - [Initialization](#initialization)
+    - [Agents Overview](#agents-overview)
+      - [GroupChatManager](#groupchatmanager)
+      - [PlannerAgent](#planneragent)
+      - [HumanAgent](#humanagent)
+      - [Specialized Agents](#specialized-agents)
+    - [Persistent Storage with Cosmos DB](#persistent-storage-with-cosmos-db)
+    - [Utilities](#utilities)
+      - [`initialize_runtime_and_context` Function](#initialize-function)
+    - [Summary](#summary)
 
 
 ## API Reference
@@ -369,7 +360,7 @@ The human can provide feedback on a step via the `/human_feedback` endpoint:
 
 If a step is approved:
 
-1. The `GroupChatManager` sends an `ActionRequest` to the appropriate specialized agent (e.g., `HrAgent`, `LegalAgent`).
+1. The `GroupChatManager` sends an `ActionRequest` to the appropriate specialized agent (e.g., `HrAgent`, `ProcurementAgent`).
 2. The specialized agent executes the action using tools and LLMs.
 3. The agent sends an `ActionResponse` back to the `GroupChatManager`.
 4. The `GroupChatManager` updates the step status and proceeds to the next step.
@@ -436,7 +427,7 @@ If a step is approved:
 
 **Common Implementation:**  
 All specialized agents inherit from `BaseAgent`, which handles common functionality.  
-**Code Reference:** `base_agent.py`, `hr.py`, `legal.py`, etc.
+**Code Reference:** `base_agent.py`, `hr.py`, etc.
 
 ![agent flow](./images/customize_solution/logic_flow.svg)
 
