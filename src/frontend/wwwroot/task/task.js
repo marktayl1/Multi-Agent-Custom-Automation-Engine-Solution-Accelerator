@@ -207,8 +207,6 @@
   };
 
   const fetchPlanDetails = async (session_id) => {
-    console.log("/plans?session_id:", window.headers);
-
     const headers = await window.headers;
 
     return fetch(apiEndpoint + "/plans?session_id=" + session_id, {
@@ -217,13 +215,41 @@
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("fetchPlanDetails", data[0]);
-
         updateTaskStatusDetails(data[0]);
         updateTaskProgress(data[0]);
         fetchTaskStages(data[0]);
 
         sessionStorage.setItem("apiTask", JSON.stringify(data[0]));
+        const isHumanClarificationRequestNull = data?.[0]?.human_clarification_request === null
+        const taskMessageTextareaElement =document.getElementById("taskMessageTextarea");
+        const taskMessageAddButton = document.getElementById("taskMessageAddButton");
+        const textInputContainer = document.getElementsByClassName("text-input-container");
+        
+        if(isHumanClarificationRequestNull && taskMessageTextareaElement){
+          taskMessageTextareaElement.setAttribute('disabled', true)
+          taskMessageTextareaElement.style.backgroundColor = "#efefef";
+          taskMessageTextareaElement.style.cursor = 'not-allowed';
+        } else {
+          taskMessageTextareaElement.removeAttribute('disabled')
+          taskMessageTextareaElement.style.backgroundColor = "white"
+          taskMessageTextareaElement.style.cursor = '';
+        }
+        if(isHumanClarificationRequestNull && taskMessageAddButton){
+          taskMessageAddButton.setAttribute('disabled', true)
+          taskMessageAddButton.style.cursor = 'not-allowed';
+        } else {
+          taskMessageAddButton.removeAttribute('disabled')
+          taskMessageAddButton.style.cursor = 'pointer';
+        }
+
+        if(isHumanClarificationRequestNull && textInputContainer[0]){ 
+          textInputContainer[0].style.backgroundColor = '#efefef';
+          textInputContainer[0].style.cursor = 'not-allowed';
+        } else { 
+          textInputContainer[0].style.backgroundColor = 'white';
+          textInputContainer[0].style.cursor = '';
+        }
+
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -238,8 +264,6 @@
       })
         .then((response) => response.json())
         .then((data) => {
-          console.log("fetchTaskStages", data);
-
           if (taskStagesMenu) taskStagesMenu.innerHTML = "";
           let taskStageCount = 0;
           let taskStageApprovalStatus = 0;
@@ -375,8 +399,6 @@
       })
         .then((response) => response.json())
         .then((data) => {
-          console.log("fetchTaskMessages", data);
-
           const toAgentName = (str) => {
             return str.replace(/([a-z])([A-Z])/g, "$1 $2");
           };
@@ -418,8 +440,6 @@
             sessionStorage.getItem("context") &&
             sessionStorage.getItem("context") === "customer"
           ) {
-            console.log("contextFilter", contextFilter(data));
-
             data = contextFilter(data);
           }
 
@@ -647,7 +667,6 @@
       })
         .then((response) => response.json())
         .then((data) => {
-          console.log("actionStage", data);
           action === "approved"
             ? notyf.success(`Stage "${stageObj.action}" approved.`)
             : notyf.error(`Stage "${stageObj.action}" rejected.`);
@@ -799,8 +818,6 @@
           })
             .then((response) => response.json())
             .then((data) => {
-              console.log("taskMessage", data);
-
               taskMessageTextarea.disabled = false;
               taskMessageAddButton.disabled = false;
               taskMessageAddButton.classList.remove("is-loading");
