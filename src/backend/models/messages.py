@@ -2,10 +2,13 @@ import uuid
 from enum import Enum
 from typing import Literal, Optional
 
-from autogen_core.components.models import (AssistantMessage,
-                                            FunctionExecutionResultMessage,
-                                            LLMMessage, SystemMessage,
-                                            UserMessage)
+from autogen_core.components.models import (
+    AssistantMessage,
+    FunctionExecutionResultMessage,
+    LLMMessage,
+    SystemMessage,
+    UserMessage,
+)
 from pydantic import BaseModel, Field
 
 
@@ -29,6 +32,7 @@ class BAgentType(str, Enum):
     tech_support_agent = "TechSupportAgent"
     group_chat_manager = "GroupChatManager"
     planner_agent = "PlannerAgent"
+    baker_agent = "BakerAgent"
 
     # Add other agents as needed
 
@@ -108,6 +112,7 @@ class Plan(BaseDataModel):
     human_clarification_request: Optional[str] = None
     human_clarification_response: Optional[str] = None
     ts: Optional[int] = None
+
 
 # Step model
 
