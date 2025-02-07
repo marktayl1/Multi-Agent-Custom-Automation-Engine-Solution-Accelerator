@@ -56,15 +56,138 @@ Below, we'll dive into the details of each component, focusing on the endpoints,
     - [Summary](#summary)
 
 
-## API Reference
+## Adding a New Agent to the Multi-Agent System
+
+This guide details the steps required to add a new agent to the Multi-Agent Custom Automation Engine. The process includes registering the agent, defining its capabilities through tools, and ensuring the PlannerAgent includes the new agent when generating activity plans.
+
+### **Step 1: Define the New Agent's Tools**
+Every agent is equipped with a set of tools (functions) that it can call to perform specific tasks. These tools need to be defined first.
+
+1. **Create New Tools**: In a new or existing file, define the tools your agent will use.
+
+    Example (for a `BakerAgent`):
+    ```python
+    from autogen_core.components.tools import FunctionTool
+
+    async def bake_cookies(cookie_type: str, quantity: int) -> str:
+        return f"Baked {quantity} {cookie_type} cookies."
+
+    async def prepare_dough(dough_type: str) -> str:
+        return f"Prepared {dough_type} dough."
+
+    def get_baker_tools() -> List[Tool]:
+        return [
+            FunctionTool(bake_cookies, description="Bake cookies of a specific type.", name="bake_cookies"),
+            FunctionTool(prepare_dough, description="Prepare dough of a specific type.", name="prepare_dough"),
+        ]
+    ```
+
+2. **Add the Tools to the System**: Register the tools with a ToolAgent.
+
+    Example:
+    ```python
+    await ToolAgent.register(
+        runtime,
+        "baker_tool_agent",
+        lambda: ToolAgent("Baker tool execution agent", get_baker_tools()),
+    )
+    ```
+
+### **Step 2: Implement the Agent Class**
+Create a new agent class that inherits from `BaseAgent`.
+
+Example (for `BakerAgent`):
+```python
+from agents.base_agent import BaseAgent
+
+class BakerAgent(BaseAgent):
+    def __init__(self, model_client, session_id, user_id, memory, tools, agent_id):
+        super().__init__(
+            "BakerAgent",
+            model_client,
+            session_id,
+            user_id,
+            memory,
+            tools,
+            agent_id,
+            system_message="You are an AI Agent specialized in baking tasks.",
+        )
+```
+
+### **Step 3: Register the Agent in the Initialization Process**
+Update the `initialize_runtime_and_context` function in `utils.py` to include the new agent.
+
+1. **Generate Agent IDs**:
+    ```python
+    baker_agent_id = AgentId("baker_agent", session_id)
+    baker_tool_agent_id = AgentId("baker_tool_agent", session_id)
+    ```
+
+2. **Register the Agent and ToolAgent**:
+    ```python
+    await BakerAgent.register(
+        runtime,
+        baker_agent_id.type,
+        lambda: BakerAgent(
+            model_client,
+            session_id,
+            user_id,
+            cosmos_memory,
+            get_baker_tools(),
+            baker_tool_agent_id,
+        ),
+    )
+    ```
+
+### **Step 4: Update the Planner Agent**
+Modify `PlannerAgent` to recognize and include the new agent when generating plans.
+
+1. **Update Available Agents**:
+    ```python
+    available_agents = [
+        hr_agent_id,
+        marketing_agent_id,
+        procurement_agent_id,
+        product_agent_id,
+        generic_agent_id,
+        tech_support_agent_id,
+        baker_agent_id,
+    ]
+    ```
+
+2. **Update Tool List**:
+    Ensure the tool list passed to the PlannerAgent includes the new agent's tools.
+    ```python
+    tool_list = retrieve_all_agent_tools() + get_baker_tools()
+    ```
+
+### **Step 5: Validate the Integration**
+Deploy the updated system and ensure the new agent is properly included in the planning process. For example, if the user requests to bake cookies, the `PlannerAgent` should:
+
+- Identify the `BakerAgent` as the responsible agent.
+- Call `bake_cookies` or `prepare_dough` from the agent's toolset.
+
+### **Step 6: Update Documentation**
+Ensure that the system documentation reflects the addition of the new agent and its capabilities. Update the `README.md` and any related technical documentation to include information about the `BakerAgent`.
+
+### **Step 7: Testing**
+Thoroughly test the agent in both automated and manual scenarios. Verify that:
+
+- The agent responds correctly to tasks.
+- The PlannerAgent includes the new agent in relevant plans.
+- The agent's tools are executed as expected.
+
+Following these steps will successfully integrate a new agent into the Multi-Agent Custom Automation Engine.
+
+### API Reference
 To view the API reference, go to the API endpoint in a browser and add "/docs".  This will bring up a full Swagger environment and reference documentation for the REST API included with this accelerator. For example, ```https://macae-backend.eastus2.azurecontainerapps.io/docs```.  
 If you prefer ReDoc, this is available by appending "/redoc".
 
 ![docs interface](./images/customize_solution/redoc_ui.png)
 
-## Models and Datatypes
-### Models
-#### **`BaseDataModel`**
+### Models and Datatypes
+#### Models
+##### **`BaseDataModel`**
 The `BaseDataModel` is a foundational class for creating structured data models using Pydantic. It provides the following attributes:
 
 - **`id`**: A unique identifier for the data, generated using `uuid`.
