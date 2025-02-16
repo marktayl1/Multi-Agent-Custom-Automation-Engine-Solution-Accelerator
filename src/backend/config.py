@@ -1,11 +1,13 @@
 # config.py
-import logging
 import os
 
 from autogen_core.components.models import AzureOpenAIChatCompletionClient
 from azure.cosmos.aio import CosmosClient
-from azure.identity.aio import (ClientSecretCredential, DefaultAzureCredential,
-                                get_bearer_token_provider)
+from azure.identity.aio import (
+    ClientSecretCredential,
+    DefaultAzureCredential,
+    get_bearer_token_provider,
+)
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -25,7 +27,6 @@ def GetBoolConfig(name):
     return name in os.environ and os.environ[name].lower() in ["true", "1"]
 
 
-
 class Config:
     AZURE_TENANT_ID = GetOptionalConfig("AZURE_TENANT_ID")
     AZURE_CLIENT_ID = GetOptionalConfig("AZURE_CLIENT_ID")
@@ -36,12 +37,14 @@ class Config:
     COSMOSDB_CONTAINER = GetRequiredConfig("COSMOSDB_CONTAINER")
 
     AZURE_OPENAI_DEPLOYMENT_NAME = GetRequiredConfig("AZURE_OPENAI_DEPLOYMENT_NAME")
+    AZURE_OPENAI_MODEL_NAME = GetOptionalConfig("AZURE_OPENAI_MODEL_NAME", default=AZURE_OPENAI_DEPLOYMENT_NAME)
     AZURE_OPENAI_API_VERSION = GetRequiredConfig("AZURE_OPENAI_API_VERSION")
     AZURE_OPENAI_ENDPOINT = GetRequiredConfig("AZURE_OPENAI_ENDPOINT")
     AZURE_OPENAI_API_KEY = GetOptionalConfig("AZURE_OPENAI_API_KEY")
 
-    FRONTEND_SITE_NAME = GetOptionalConfig("FRONTEND_SITE_NAME", "http://127.0.0.1:3000")
-    
+    FRONTEND_SITE_NAME = GetOptionalConfig(
+        "FRONTEND_SITE_NAME", "http://127.0.0.1:3000"
+    )
 
     __azure_credentials = DefaultAzureCredential()
     __comos_client = None
@@ -87,7 +90,8 @@ class Config:
         if Config.AZURE_OPENAI_API_KEY == "":
             # Use DefaultAzureCredential for auth
             Config.__aoai_chatCompletionClient = AzureOpenAIChatCompletionClient(
-                model=Config.AZURE_OPENAI_DEPLOYMENT_NAME,
+                model=Config.AZURE_OPENAI_MODEL_NAME,
+                azure_deployment=Config.AZURE_OPENAI_DEPLOYMENT_NAME,
                 api_version=Config.AZURE_OPENAI_API_VERSION,
                 azure_endpoint=Config.AZURE_OPENAI_ENDPOINT,
                 azure_ad_token_provider=Config.GetTokenProvider(
@@ -99,7 +103,8 @@ class Config:
         else:
             # Fallback behavior to use API key
             Config.__aoai_chatCompletionClient = AzureOpenAIChatCompletionClient(
-                model=Config.AZURE_OPENAI_DEPLOYMENT_NAME,
+                model=Config.AZURE_OPENAI_MODEL_NAME,
+                azure_deployment=Config.AZURE_OPENAI_DEPLOYMENT_NAME,
                 api_version=Config.AZURE_OPENAI_API_VERSION,
                 azure_endpoint=Config.AZURE_OPENAI_ENDPOINT,
                 api_key=Config.AZURE_OPENAI_API_KEY,
