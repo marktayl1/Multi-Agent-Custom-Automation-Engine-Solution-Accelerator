@@ -1,0 +1,242 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.border-right {
+  border-right: 1px solid #e6e6e6;
+}
+
+.asside {
+  background-color: #f5f5f5;
+  height: 100%;
+}
+
+.menu-logo {
+  cursor: pointer;
+}
+
+.menu-task {
+  display: flex;
+  align-items: center;
+}
+
+.menu-task.is-active {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+/* Spinner styles */
+#spinnerLoader {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  display: none;
+}
+
+/* Task page specific styles */
+.task-asside {
+  overflow-y: auto;
+  height: 100vh;
+}
+
+.task-menu {
+  padding: 1rem;
+}
+
+.task-progress {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #e6e6e6;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.task-stats {
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.task-details {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Input styles */
+.text-input-container {
+  position: relative;
+  margin-bottom: 1rem;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.text-input-container textarea {
+  width: 100%;
+  min-height: 60px;
+  border: none;
+  padding: 10px;
+  resize: none;
+  outline: none;
+}
+
+.middle-bar {
+  padding: 5px 10px;
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid #e6e6e6;
+  background-color: #f9f9f9;
+}
+
+.bottom-bar {
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #e6e6e6;
+  background-color: #f9f9f9;
+}
+
+.send-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.send-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Home page styles */
+.prompt-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.app-logo {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 1rem;
+}
+
+.assistants {
+  color: #3273dc;
+}
+
+.quick-task {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.quick-task:hover {
+  transform: translateY(-5px);
+}
+
+/* Background animation */
+.background {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+}
+
+.orb.one {
+  width: 400px;
+  height: 400px;
+  background-color: #d0e1ff;
+  top: -100px;
+  right: -100px;
+}
+
+.orb.two {
+  width: 300px;
+  height: 300px;
+  background-color: #c9f0ff;
+  bottom: -50px;
+  left: -50px;
+}
+
+.orb.three {
+  width: 200px;
+  height: 200px;
+  background-color: #e5f5ff;
+  bottom: 100px;
+  right: 30%;
+}
+
+/* Message styles for task page */
+.message {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 4px;
+}
+
+.message.is-user {
+  background-color: #f0f8ff;
+}
+
+.message.is-ai {
+  background-color: #f5f5f5;
+}
+
+.message.is-system {
+  background-color: #fffbeb;
+}
+
+.stage-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.25rem;
+  cursor: pointer;
+}
+
+.stage-item.is-active {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
